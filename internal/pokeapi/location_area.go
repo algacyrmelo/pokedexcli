@@ -6,10 +6,21 @@ import (
 	"net/http"
 )
 
+// ListLocationAreas returns a list of location areas from PokeAPI,
+// using a cached response if one is available.
 func (c *Client) ListLocationAreas(pageURL *string) (NamedAPIResourceList, error) {
 	url := baseURL + "/location-area"
 	if pageURL != nil {
 		url = *pageURL
+	}
+
+	if data, cached := c.cache.Get(url); cached {
+		locationAreas := NamedAPIResourceList{}
+		err := json.Unmarshal(data, &locationAreas)
+		if err != nil {
+			return NamedAPIResourceList{}, err
+		}
+		return locationAreas, nil
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -34,5 +45,6 @@ func (c *Client) ListLocationAreas(pageURL *string) (NamedAPIResourceList, error
 		return NamedAPIResourceList{}, err
 	}
 
+	c.cache.Add(url, data)
 	return locationAreas, nil
 }
