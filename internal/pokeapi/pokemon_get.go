@@ -7,8 +7,8 @@ import (
 )
 
 // GetPokemon returns a Pokemon from PokeAPI.
-func (c *Client) GetPokemon(name string) (Pokemon, error) {
-	url := baseURL + "/pokemon/" + name
+func (c *Client) GetPokemon(pokemonName string) (Pokemon, error) {
+	url := baseURL + "/pokemon/" + pokemonName
 
 	if data, cached := c.cache.Get(url); cached {
 		pokemon := Pokemon{}
@@ -24,13 +24,13 @@ func (c *Client) GetPokemon(name string) (Pokemon, error) {
 		return Pokemon{}, err
 	}
 
-	res, err := c.httpClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return Pokemon{}, err
 	}
-	defer res.Body.Close()
+	defer resp.Body.Close()
 
-	data, err := io.ReadAll(res.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return Pokemon{}, err
 	}
